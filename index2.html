@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diario Personal para Deportistas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      background: #007bff;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .entry {
+      background: #e9f5ff;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Diario Personal para Deportistas</h1>
+
+    <label>Nombre:</label>
+    <input type="text" id="nombre" />
+
+    <label>Apellido:</label>
+    <input type="text" id="apellido" />
+
+    <label>Edad:</label>
+    <input type="number" id="edad" />
+
+    <label>¿Cómo te sientes hoy?</label>
+    <textarea id="estado" rows="3"></textarea>
+
+    <label>Entrenamiento realizado:</label>
+    <textarea id="entrenamiento" rows="3"></textarea>
+
+    <label>¿Qué salió bien?</label>
+    <textarea id="positivo" rows="3"></textarea>
+
+    <label>¿Qué puedes mejorar?</label>
+    <textarea id="mejora" rows="3"></textarea>
+
+    <button onclick="guardarEntrada()">Guardar Entrada</button>
+
+    <h2>Entradas Guardadas</h2>
+    <div id="entradas"></div>
+  </div>
+
+<script>
+  function guardarEntrada() {
+    const nombre = document.getElementById('nombre').value;
+    const apellido = document.getElementById('apellido').value;
+    const edad = document.getElementById('edad').value;
+    const estado = document.getElementById('estado').value;
+    const entrenamiento = document.getElementById('entrenamiento').value;
+    const positivo = document.getElementById('positivo').value;
+    const mejora = document.getElementById('mejora').value;
+
+    const contenedor = document.getElementById('entradas');
+
+    const div = document.createElement('div');
+    div.classList.add('entry');
+    div.innerHTML = `
+      <p><strong>Nombre:</strong> ${nombre} ${apellido}</p>
+      <p><strong>Edad:</strong> ${edad}</p>
+      <p><strong>Estado de ánimo:</strong> ${estado}</p>
+      <p><strong>Entrenamiento:</strong> ${entrenamiento}</p>
+      <p><strong>Aspectos positivos:</strong> ${positivo}</p>
+      <p><strong>A mejorar:</strong> ${mejora}</p>
+      <hr />
+    `;
+
+    contenedor.appendChild(div);
+
+    document.getElementById('estado').value = "";
+    document.getElementById('entrenamiento').value = "";
+    document.getElementById('positivo').value = "";
+    document.getElementById('mejora').value = "";
+  }
+</script>
+</body>
+</html>
