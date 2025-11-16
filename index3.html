@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diario Personal — Deportista</title>
+  <meta name="description" content="Diario personal para deportistas con recomendaciones IA y seguimiento de crisis y emociones.">
+  <style>
+    /* -------------------------
+      Estilo: moderno deportivo (Refactorizado)
+      ------------------------- */
+    :root{
+      --bg1: #0f1724;
+      --bg2: #071129;
+      --card: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.7);
+      --accent: #10b981; /* verde */
+      --accent2: #06b6d4; /* cyan */
+      --glass: rgba(255,255,255,0.03);
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      --section-border: rgba(255,255,255,0.08); /* Nuevo borde para secciones */
+      --section-padding: 18px; /* Nuevo padding para secciones */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: linear-gradient(180deg,var(--bg1),var(--bg2)); color: white; -webkit-font-smoothing:antialiased}
+    
+    /* Contenedor principal con más espacio entre columnas */
+    .wrap{max-width:1100px;margin:28px auto;padding:22px;display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start}
+    
+    .header{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:58px;height:58px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#062022;font-size:22px;box-shadow:0 6px 20px rgba(2,6,23,0.6)
+    }
+    h1{margin:0;font-size:20px}
+    /* La tarjeta principal del formulario */
+    .card{background:var(--card);padding:22px;border-radius:var(--radius);box-shadow: 0 6px 30px rgba(2,6,23,0.45);border:1px solid rgba(255,255,255,0.03)}
+    
+    /* Nuevos estilos para agrupar campos del formulario */
+    .form-section{
+        border: 1px solid var(--section-border);
+        padding: var(--section-padding);
+        border-radius: var(--radius);
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px; /* Espacio entre los campos de la sección */
+    }
+    .form-section h3{
+
+        font-size: 15px;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    form .row{display:flex;gap:10px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="text"], input[type="date"], textarea, select{
+      width:100%;padding:10px;border-radius:10px;border:1px solid var(--section-border); /* Borde más visible */
+      background:rgba(255,255,255,0.01); /* Fondo muy ligero */
+      color:white;font-size:14px;outline:none;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--accent2); /* Resaltar al enfocar */
+        background: rgba(255,255,255,0.03);
+    }
+    textarea{min-height:64px;resize:vertical}
+    
+    .small{font-size:12px;color:rgba(255,255,255,0.65)}
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#021; padding:10px 14px;border-radius:10px;border:none;font-weight:600;cursor:pointer;box-shadow:0 8px 18px rgba(3,7,18,0.5); transition: opacity 0.2s}
+    .btn:hover { opacity: 0.9; }
+    .btn.ghost{background:transparent;border:1px solid var(--section-border);color:var(--muted)}
+    .actions{display:flex;gap:10px;align-items:center;margin-top:20px; padding-top: 15px; border-top: 1px solid var(--section-border);}
+    .aside-list{display:flex;flex-direction:column;gap:12px;max-height:62vh;overflow:auto;padding-right:6px}
+    .entry-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    .muted{color:rgba(255,255,255,0.6);font-size:13px}
+    .tag{display:inline-block;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.04);font-size:12px;margin-right:6px}
+    .flex{display:flex;align-items:center}
+    .space{height:10px}
+    .footer{max-width:1100px;margin:10px auto;text-align:center;color:rgba(255,255,255,0.5);font-size:13px}
+    .tech-list pre{white-space:pre-wrap;font-family:var(--mono);font-size:13px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .notice{font-size:13px;color:rgba(255,255,255,0.65)}
+    .file-input{display:none}
+    .kpi{display:flex;gap:8px;align-items:center}
+    .kpi strong{font-size:16px}
+    /* Media Query para móvil/tablet */
+    @media(max-width:980px){.wrap{grid-template-columns:1fr;padding:12px}.aside-list{max-height:300px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div>
+      <div class="card">
+        <div class="header">
+          <div class="logo">DA</div>
+          <div>
+            <h1>Diario Personal — Deportista</h1>
+            <div class="small">Registra el día a día y recibe sugerencias de técnicas.</div>
+          </div>
+        </div>
+
+        <form id="diaryForm" class="space" onsubmit="return false;">
+          
+          <div class="form-section">
+            <h3>📝 Registro Diario y Metas</h3>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <label style="flex:1">
+                <div class="small">Fecha</div>
+                <input type="date" id="fecha" />
+              </label>
+              <label style="width:220px">
+                <div class="small">Enfermedad / condición</div>
+                <input type="text" id="enfermedad" placeholder="ej. ansiedad deportiva" />
+              </label>
+            </div>
+
+            <label>
+              <div class="small">Objetivos</div>
+              <textarea id="objetivos" placeholder="Objetivos para hoy / semanal"></textarea>
+            </label>
+
+            <div class="grid-2">
+              <label>
+                <div class="small">Logros</div>
+                <input type="text" id="logros" />
+              </label>
+              <label>
+                <div class="small">Frecuencia de entrenamiento</div>
+                <input type="text" id="frecuencia" placeholder="p.ej. 4x/semana" />
+              </label>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>🧘 Emociones y Sentimientos</h3>
+            <div class="grid-2">
+              <label>
+                <div class="small">Emociones (palabras)</div>
+                <input type="text" id="emociones" placeholder="ansioso, motivado..." />
+              </label>
+              <label>
+                <div class="small">Sentimientos (más detalle)</div>
+                <input type="text" id="sentimientos" />
+              </label>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>🚨 Seguimiento de Posible Crisis</h3>
+            <label>
+              <div class="small">Posible crisis del día</div>
+              <textarea id="posible_crisis" placeholder="Describe en pocas líneas"></textarea>
+            </label>
+
+            <div class="grid-2">
+              <label>
+                <div class="small">Posibles causas</div>
+                <input type="text" id="posibles_causas" />
+              </label>
+              <label>
+                <div class="small">Duración de la crisis</div>
+                <input type="text" id="duracion_crisis" placeholder="p.ej. 10min" />
+              </label>
+            </div>
+            
+            <label>
+              <div class="small">Ayuda brindada</div>
+              <input type="text" id="ayuda_brindada" />
+            </label>
+          </div>
+
+          <div class="form-section">
+            <h3>🎯 Técnica Recomendada y Feedback</h3>
+            <label>
+              <div class="small">Técnica que se recomienda (puedes añadir manualmente o elegir una sugerencia)</div>
+              <textarea id="tecnica_recomendada" placeholder="Aquí se añadirán técnicas recomendadas"></textarea>
+            </label>
+
+            <div class="grid-2">
+              <label>
+                <div class="small">Experiencia con la técnica</div>
+                <input type="text" id="experiencia_tecnica" />
+              </label>
+              <label>
+                <div class="small">Efectividad (1-10)</div>
+                <input type="text" id="efectividad" placeholder="1-10" />
+              </label>
+            </div>
+
+            <div class="grid-2">
+              <label>
+                <div class="small">Eficiencia (tiempo/beneficio)</div>
+                <input type="text" id="eficiencia" />
+              </label>
+              <label>
+                <div class="small">Mejora y retroalimentación</div>
+                <input type="text" id="mejora_retro" />
+              </label>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" id="saveBtn">Guardar entrada</button>
+            <button class="btn ghost" id="clearBtn" type="button">Limpiar</button>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn ghost" id="suggestBtn" type="button">Sugerir técnicas (IA)</button>
+              <button class="btn ghost" id="exportBtn" type="button">Exportar JSON</button>
+              <button class="btn ghost" id="clearAll">Borrar todo</button>
+              <label class="btn ghost" style="padding:8px 10px;cursor:pointer">
+                Importar
+                <input id="importFile" class="file-input" type="file" accept=".json" />
+              </label>
+            </div>
+          </div>
+
+          <div class="space"></div>
+          <div class="small notice">Sugerencias IA: si tienes un endpoint seguro llamado <code>/api/ai-suggest</code> (o similar), la página intentará usarlo. Si no, se usan sugerencias locales heurísticas (privadas, en tu navegador).</div>
+        </form>
+      </div>
+
+      <div class="space"></div>
+
+      <div class="card">
+        <div class="topline">
+          <div class="kpi muted">
+          </div>
+        </div>
+
+        <div class="aside-list" id="entriesList">
+          </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h3 style="margin:0">Sugerencias IA / Técnicas</h3>
+            <div class="small muted">Añade una sugerencia a la técnica recomendada.</div>
+          </div>
+          <div style="font-size:12px" id="aiStatus">Modo: local</div>
+        </div>
+
+        <div style="margin-top:12px" id="aiSuggestionsContainer">
+          </div>
+
+        <div style="margin-top:12px" class="space"></div>
+
+        <div>
+          <strong class="small muted">Consejos rápidos</strong>
+          <ul class="small muted" style="margin-top:8px">
+            <li>Guarda entradas diariamente para ver mejoras.</li>
+            <li>Usa la exportación para backup.</li>
+            <li>Si integras OpenAI, no guardes claves en el navegador en producción.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="height:18px"></div>
+
+      <div class="card">
+        <div class="small muted"><strong>Instrucciones para desplegar</strong></div>
+        <ol class="small muted" style="margin-top:8px">
+          <li>Sube este archivo (index.html) a un hosting estático (Netlify, Vercel, GitHub Pages).</li>
+          <li>Si quieres IA real: crea un endpoint serverless `/api/ai-suggest` en Vercel o en tu servidor que reciba JSON { prompt } y retorne { suggestions: [..] }.</li>
+          <li>En Vercel: New Project → Upload → Deploy. Luego añade variable de entorno OPENAI_API_KEY en Settings (si usas OpenAI).</li>
+        </ol>
+      </div>
+
+      <div style="height:18px"></div>
+
+      <div class="card">
+        <div class="small muted"><strong>Entradas guardadas</strong></div>
+        <div class="kpi muted">
+            <div class="tag">Guardadas: <span id="count">0</span></div>
+            <div class="tag" id="lastSaved">Última: —</div>
+          </div>
+ <script>
+    // ------------------------
+    // Lógica JavaScript (todo en un archivo)
+    // ------------------------
+    (function(){
+      // Elementos
+      const $ = id => document.getElementById(id);
+      const fecha = $('fecha');
+      const enfermedad = $('enfermedad');
+      const objetivos = $('objetivos');
+      const logros = $('logros');
+      const frecuencia = $('frecuencia');
+      const emociones = $('emociones');
+      const sentimientos = $('sentimientos');
+      const posible_crisis = $('posible_crisis');
+      const posibles_causas = $('posibles_causas');
+      const duracion_crisis = $('duracion_crisis');
+      const ayuda_brindada = $('ayuda_brindada');
+      const tecnica_recomendada = $('tecnica_recomendada');
+      const experiencia_tecnica = $('experiencia_tecnica');
+      const efectividad = $('efectividad');
+      const eficiencia = $('eficiencia');
+      const mejora_retro = $('mejora_retro');
+
+      const saveBtn = $('saveBtn');
+      const clearBtn = $('clearBtn');
+      const exportBtn = $('exportBtn');
+      const importFile = $('importFile');
+      const suggestBtn = $('suggestBtn');
+      const aiContainer = $('aiSuggestionsContainer');
+      const aiStatus = $('aiStatus');
+      const entriesList = $('entriesList');
+      const countEl = $('count');
+      const lastSaved = $('lastSaved');
+      const clearAll = $('clearAll');
+
+      // Estado
+      let entries = [];
+      let editingId = null;
+      const STORAGE_KEY = 'diario_atleta_entries_v1';
+
+      // Inicializar
+      function init(){
+        // Fecha por defecto hoy
+        const today = new Date().toISOString().slice(0,10);
+        fecha.value = today;
+        load();
+        bind();
+        renderEntries();
+      }
+
+      function onSave(){
+        const data = makeEntryFromForm();
+        if (!data.objetivos && !data.emociones && !data.posible_crisis && !data.enfermedad){
+          if (!confirm('Parece que la entrada está casi vacía. ¿Deseas guardarla?')) return;
+        }
+        if (editingId){
+          entries = entries.map(e => e.id === editingId ? data : e);
+          editingId = null;
+        } else {
+          entries.unshift(data);
+        }
+        save();
+        renderEntries();
+        onClearForm();
+        notify('Entrada guardada', 'Recuerda revisar tus técnicas y anotaciones.');
+      }
+
+      function bind(){
+        saveBtn.addEventListener('click', onSave);
+        clearBtn.addEventListener('click', onClearForm);
+        exportBtn.addEventListener('click', onExport);
+        importFile.addEventListener('change', onImport);
+        suggestBtn.addEventListener('click', onSuggest);
+        clearAll.addEventListener('click', onClearAll);
+      }
+
+      function makeEntryFromForm(){
+        return {
+          id: editingId || Date.now().toString(),
+          fecha: fecha.value || new Date().toISOString().slice(0,10),
+          enfermedad: enfermedad.value.trim(),
+          objetivos: objetivos.value.trim(),
+          logros: logros.value.trim(),
+          frecuencia: frecuencia.value.trim(),
+          emociones: emociones.value.trim(),
+          sentimientos: sentimientos.value.trim(),
+          posible_crisis: posible_crisis.value.trim(),
+          posibles_causas: posibles_causas.value.trim(),
+          duracion_crisis: duracion_crisis.value.trim(),
+          ayuda_brindada: ayuda_brindada.value.trim(),
+          tecnica_recomendada: tecnica_recomendada.value.trim(),
+          experiencia_tecnica: experiencia_tecnica.value.trim(),
+          efectividad: efectividad.value.trim(),
+          eficiencia: eficiencia.value.trim(),
+          mejora_retro: mejora_retro.value.trim()
+        };
+      }
+
+
+      function onClearForm(){
+        editingId = null;
+        fecha.value = new Date().toISOString().slice(0,10);
+        enfermedad.value = objetivos.value = logros.value = frecuencia.value = emociones.value = sentimientos.value = posible_crisis.value = posibles_causas.value = duracion_crisis.value = ayuda_brindada.value = tecnica_recomendada.value = experiencia_tecnica.value = efectividad.value = eficiencia.value = mejora_retro.value = '';
+      }
+
+      function onExport(){
+        const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'diario_atleta_entries_'+new Date().toISOString().slice(0,10)+'.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function onImport(e){
+        const f = e.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = function(ev){
+          try{
+            const data = JSON.parse(ev.target.result);
+            if (!Array.isArray(data)) throw new Error('Formato inválido');
+            entries = data.concat(entries);
+            save();
+            renderEntries();
+            notify('Importación completa','Entradas importadas correctamente.');
+          } catch(err){
+            alert('Error al importar: '+err.message);
+          }
+        };
+        reader.readAsText(f);
+      }
+
+      function onSuggest(){
+        // Chequear si hay un endpoint disponible: /api/ai-suggest
+        aiContainer.innerHTML = '<div class="muted small">Generando sugerencias...</div>';
+        // Preferir endpoint si existe (configurable)
+        const endpoint = '/api/ai-suggest'; // si despliegas en Vercel, configura este endpoint serverless
+        // Construir prompt
+        const payload = {
+          enfermedad: enfermedad.value,
+          emociones: emociones.value,
+          sentimientos: sentimientos.value,
+          posible_crisis: posible_crisis.value,
+          duracion_crisis: duracion_crisis.value,
+          objetivos: objetivos.value
+        };
+        // Intentar llamar al endpoint (timeout)
+        let called = false;
+        const controller = new AbortController();
+        const timeout = setTimeout(()=> controller.abort(), 8500);
+
+        fetch(endpoint, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        }).then(r=>{
+          called = true;
+          if (!r.ok) throw new Error('No response from server');
+          return r.json();
+        }).then(data=>{
+          clearTimeout(timeout);
+          if (data && Array.isArray(data.suggestions) && data.suggestions.length>0){
+            renderAISuggestions(data.suggestions, true);
+            aiStatus.textContent = 'Modo: servidor';
+          } else {
+            // fallback local
+            const heur = localSuggestions(payload.emociones, payload.sentimientos, payload.posible_crisis);
+            renderAISuggestions(heur, false);
+            aiStatus.textContent = 'Modo: local (fallback)';
+          }
+        }).catch(err=>{
+          // Si hubo error (no server), usar heurística local
+          const heur = localSuggestions(payload.emociones, payload.sentimientos, payload.posible_crisis);
+          renderAISuggestions(heur, false);
+          aiStatus.textContent = 'Modo: local';
+        }).finally(()=>{
+          clearTimeout(timeout);
+        });
+      }
+
+      function renderAISuggestions(list, fromServer=false){
+        aiContainer.innerHTML = '';
+        list.forEach((s, i) => {
+          const el = document.createElement('div');
+          el.className = 'entry-card';
+          el.style.marginBottom = '8px';
+          el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-start">
+                              <div style="font-size:14px"><strong>Técnica ${i+1}</strong></div>
+                              <div style="font-size:12px;color:rgba(255,255,255,0.6)">${fromServer ? 'servidor' : 'local'}</div>
+                            </div>
+                            <div style="margin-top:8px" class="tech-list"><pre>${escapeHtml(s)}</pre></div>
+                            <div style="margin-top:8px;display:flex;gap:8px">
+                              <button class="btn ghost" data-idx="${i}">Añadir al campo</button>
+                            </div>`;
+          aiContainer.appendChild(el);
+        });
+        // botones añadir
+        aiContainer.querySelectorAll('button').forEach(btn=>{
+          btn.addEventListener('click', (ev)=>{
+            const idx = +btn.getAttribute('data-idx');
+            tecnica_recomendada.value = (tecnica_recomendada.value ? tecnica_recomendada.value + "\n- " : "- ") + list[idx];
+            notify('Añadido', 'Sugerencia añadida a "Técnica recomendada".');
+          });
+        });
+      }
+
+      function renderEntries(){
+        entriesList.innerHTML = '';
+        entries.forEach(e=>{
+          const el = document.createElement('div');
+          el.className = 'entry-card';
+          el.style.marginBottom = '10px';
+          el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-start">
+                              <div>
+                                <div style="font-weight:700">${escapeHtml(e.enfermedad || 'Sin enfermedad')}</div>
+                                <div class="muted" style="margin-top:6px;font-size:13px">${escapeHtml(e.fecha)} — ${truncate(e.objetivos,60)}</div>
+                              </div>
+                              <div style="display:flex;flex-direction:column;gap:6px">
+                                <button class="btn ghost" data-id="${e.id}" style="padding:6px 8px;font-size:13px">Editar</button>
+                                <button class="btn ghost" data-del="${e.id}" style="padding:6px 8px;font-size:13px">Eliminar</button>
+                              </div>
+                            </div>
+                            <div class="muted" style="margin-top:8px">Emociones: ${escapeHtml(e.emociones)}</div>`;
+          entriesList.appendChild(el);
+        });
+
+        // event delegation for edit/delete
+        entriesList.querySelectorAll('[data-id]').forEach(b=>{
+          b.addEventListener('click', ()=> {
+            const id = b.getAttribute('data-id');
+            onEditEntry(id);
+          });
+        });
+        entriesList.querySelectorAll('[data-del]').forEach(b=>{
+          b.addEventListener('click', ()=> {
+            const id = b.getAttribute('data-del');
+            if (!confirm('¿Eliminar esta entrada?')) return;
+            entries = entries.filter(x=> x.id !== id);
+            save(); renderEntries(); notify('Entrada eliminada','El registro ha sido eliminado.');
+          });
+        });
+
+        countEl.textContent = entries.length;
+        lastSaved.textContent = entries.length ? ('Última: ' + entries[0].fecha) : 'Última: —';
+      }
+
+      function onEditEntry(id){
+        const e = entries.find(x=> x.id === id);
+        if (!e) return;
+        editingId = id;
+        fecha.value = e.fecha;
+        enfermedad.value = e.enfermedad;
+        objetivos.value = e.objetivos;
+        logros.value = e.logros;
+        frecuencia.value = e.frecuencia;
+        emociones.value = e.emociones;
+        sentimientos.value = e.sentimientos;
+        posible_crisis.value = e.posible_crisis;
+        posibles_causas.value = e.posibles_causas;
+        duracion_crisis.value = e.duracion_crisis;
+        ayuda_brindada.value = e.ayuda_brindada;
+        tecnica_recomendada.value = e.tecnica_recomendada;
+        experiencia_tecnica.value = e.experiencia_tecnica;
+        efectividad.value = e.efectividad;
+        eficiencia.value = e.eficiencia;
+        mejora_retro.value = e.mejora_retro;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function onClearAll(){
+        if (!confirm('¿Borrar todas las entradas? Esta acción no se puede deshacer.')) return;
+        entries = [];
+        localStorage.removeItem(STORAGE_KEY);
+        renderEntries();
+      }
+
+      function save(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      }
+
+      function load(){
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) entries = JSON.parse(raw);
+        } catch(e){ entries = []; }
+      }
+
+      function notify(title, body){
+        if (!("Notification" in window)) return;
+        if (Notification.permission === 'granted'){
+          new Notification(title, { body });
+        } else if (Notification.permission !== 'denied'){
+          Notification.requestPermission().then(p=>{ if (p==='granted') new Notification(title, { body }); });
+        }
+      }
+
+      // ------------------------
+      // Heurística local para sugerencias (si no hay servidor)
+      // ------------------------
+      function localSuggestions(emoc, senti, crisis){
+        const text = ((emoc||'') + ' ' + (senti||'') + ' ' + (crisis||'')).toLowerCase();
+        const suggestions = [];
+        if (/(ansios?|ansiedad|nervios|tenso|estres)/i.test(text)){
+          suggestions.push("Respiración diafragmática — Pasos: 1) Sentado con espalda recta. 2) Inhala 4s por la nariz. 3) Retén 2s. 4) Exhala 6s por la boca. Repetir 5 ciclos. Uso: antes o durante la sesión para bajar activación.");
+          suggestions.push("Relajación muscular progresiva — Pasos: 1) Tensa un grupo muscular 5s. 2) Suelta y observa. 3) Recorre todo el cuerpo. Duración: 10-12 min. Uso: tras entrenamiento o cuando note tensión.");
+        }
+        if (/(triste|deprim|desanim|sin ganas|agotad)/i.test(text)){
+          suggestions.push("Activación conductual corta — Pasos: 1) Realiza 1 tarea pequeña y concreta (5-10 min). 2) Registra cómo te sentiste. 3) Recompénsate. Duración: 10-20 min. Uso: cuando haya baja motivación.");
+          suggestions.push("Registro de gratitud dirigida — Pasos: 1) Escribe 3 cosas que hiciste bien. 2) Relaciónalas con el entrenamiento. 3) Léelas en voz alta. Duración: 5 min. Uso: diaria, tras sesiones.");
+        }
+        if (/(ira|frustr|molest)/i.test(text)){
+          suggestions.push("Técnica STOP — Pasos: 1) Para la acción. 2) Toma 3 respiraciones largas. 3) Observa pensamientos y actúa con intención. Duración: 2-5 min. Uso: en picos de irritación.");
+        }
+        if (/(panico|ataque|insufrible)/i.test(text)){
+          suggestions.push("Enraizamiento 5-4-3-2-1 — Pasos: 1) Nombra 5 cosas que ves. 2) 4 sonidos. 3) 3 sensaciones. 2 olores. 1 cosa que puedas saborear. Duración: 3-5 min. Uso: crisis aguda.");
+        }
+        // Sugerencia general de movilidad
+        suggestions.push("Micro-pausa activa — Pasos: 1) 2 min de movilidad suave. 2) 30-60s de respiración consciente. 3) Reanuda con objetivo reducido. Uso: cuando la sesión se siente abrumadora.");
+
+        // Si no detecta nada concreto
+        if (suggestions.length === 0){
+          return [
+            "Respiración 4-4-4 — Inhala 4s, retén 4s, exhala 4s — 4 ciclos — Uso: antes de competir o si nota bloqueo.",
+            "Activación breve — Haz 3 series de 30s de trabajo ligero con intención de enfoque (ej. saltos suaves) — 5-10 min — Uso: para mejorar ánimo antes de entrenar."
+          ];
+        }
+        return suggestions;
+      }
+
+      // ------------------------
+      // Helpers
+      // ------------------------
+      function escapeHtml(s){
+        if (!s) return '';
+        return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});
+      }
+      function truncate(s,n){ if (!s) return ''; return s.length>n? s.slice(0,n-1)+'…':s; }
+
+      // ---- initialize
+      init();
+
+      // Expose for debugging (optional)
+      window._diario = { entries, save, load, localSuggestions };
+    })();
+  </script>
+
+      </div>
+    </aside>
+  </div>
+</body>
+</html>
